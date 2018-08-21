@@ -11,6 +11,7 @@
  * @package ee-cli
  */
 
+use EE\Model\Site;
 use \Symfony\Component\Filesystem\Filesystem;
 
 class Mailhog_Command extends EE_Command {
@@ -31,22 +32,18 @@ class Mailhog_Command extends EE_Command {
 	public function up( $args, $assoc_args ) {
 
 		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
-		$args = EE\SiteUtils\auto_site_name( $args, 'mailhog', __FUNCTION__ );
+		$args     = EE\SiteUtils\auto_site_name( $args, 'mailhog', __FUNCTION__ );
 		$this->db = Site::find( EE\Utils\remove_trailing_slash( $args[0] ) );
 		if ( ! $this->db || ! $this->db->site_enabled ) {
 			EE::error( sprintf( 'Site %s does not exist / is not enabled.', $args[0] ) );
 		}
 
-		// TODO: mailhog_enabled fnuction after db changes
-		// if($this->mailhog_enabled()){
-		// 	EE::error('Mailhog is already enabled.');
-		// }
-
-		chdir( $this->db->site_fs_path );
-		$this->check_mailhog_available();
+		if ( $this->mailhog_enabled() ) {
+			EE::error( 'Mailhog is already up.' );
+		}
 		EE::docker()::docker_compose_up( $this->db->site_fs_path, [ 'mailhog' ] );
 		EE::exec( "docker-compose exec postfix postconf -e 'relayhost = mailhog:1025'" );
-
+		EE::success( sprintf( 'Mailhog enabled for %s site', $this->db->site_url ) );
 	}
 
 	/**
@@ -60,21 +57,42 @@ class Mailhog_Command extends EE_Command {
 	public function down( $args, $assoc_args ) {
 
 		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
-		$args = EE\SiteUtils\auto_site_name( $args, 'mailhog', __FUNCTION__ );
+		$args     = EE\SiteUtils\auto_site_name( $args, 'mailhog', __FUNCTION__ );
 		$this->db = Site::find( EE\Utils\remove_trailing_slash( $args[0] ) );
 		if ( ! $this->db || ! $this->db->site_enabled ) {
 			EE::error( sprintf( 'Site %s does not exist / is not enabled.', $args[0] ) );
 		}
 
-		// TODO: mailhog_enabled fnuction after db changes
-		// if($this->mailhog_enabled()){
-		// 	Then only run this...
-		// }
-
-		$this->check_mailhog_available();
-		EE::docker()::stop_container( 'mailhog' );
+		if ( ! $this->mailhog_enabled() ) {
+			EE::error( 'Mailhog is already down.' );
+		}
+		EE::exec( 'docker-compose stop mailhog' );
 		EE::exec( 'docker-compose exec postfix postconf -e \'relayhost =\'' );
+		EE::success( sprintf( 'Mailhog disabled for %s site', $this->db->site_url ) );
+	}
 
+	/**
+	 * Outputs status of mailhog for a site.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [<site-name>]
+	 * : Name of website to know mailhog status for.
+	 */
+	public function status( $args, $assoc_args ) {
+
+		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
+		$args     = EE\SiteUtils\auto_site_name( $args, 'mailhog', __FUNCTION__ );
+		$this->db = Site::find( EE\Utils\remove_trailing_slash( $args[0] ) );
+		if ( ! $this->db || ! $this->db->site_enabled ) {
+			EE::error( sprintf( 'Site %s does not exist / is not enabled.', $args[0] ) );
+		}
+
+		if ( $this->mailhog_enabled() ) {
+			EE::log( sprintf( 'Mailhog is UP for %s site.', $this->db->site_url ) );
+		} else {
+			EE::log( sprintf( 'Mailhog is DOWN for %s site.', $this->db->site_url ) );
+		}
 	}
 
 	/**
@@ -90,6 +108,23 @@ class Mailhog_Command extends EE_Command {
 			EE::debug( 'Site command: ' . $this->db->app_sub_type );
 			EE::error( sprintf( '%s site does not have support to enable/disable mailhog.' ) );
 		}
+	}
+
+	/**
+	 * Function to check if mailhog is possible for the site-type and is enabled or not.
+	 *
+	 * @return bool Status of mailhog enabled or not.
+	 */
+	private function mailhog_enabled() {
+
+		$this->check_mailhog_available();
+		$launch = EE::launch( 'docker-compose ps -q mailhog' );
+		$id     = trim( $launch->stdout );
+		if ( empty( $id ) ) {
+			return false;
+		}
+
+		return 'running' === EE::docker()::container_status( $id );
 	}
 
 }
