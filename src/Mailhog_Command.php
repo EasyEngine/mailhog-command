@@ -43,6 +43,7 @@ class Mailhog_Command extends EE_Command {
 		}
 		EE::docker()::docker_compose_up( $this->site_data->site_fs_path, [ 'mailhog' ] );
 		EE::exec( "docker-compose exec postfix postconf -e 'relayhost = mailhog:1025'" );
+		EE::exec( 'docker-compose restart postfix' );
 		EE::success( sprintf( 'Mailhog enabled for %s site', $this->site_data->site_url ) );
 	}
 
