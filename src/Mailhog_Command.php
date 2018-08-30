@@ -1,5 +1,10 @@
 <?php
 
+
+use EE\Model\Site;
+use \Symfony\Component\Filesystem\Filesystem;
+use function EE\Site\Utils\auto_site_name;
+
 /**
  * Enables/Disables admin-tools on a site.
  *
@@ -10,10 +15,6 @@
  *
  * @package ee-cli
  */
-
-use EE\Model\Site;
-use \Symfony\Component\Filesystem\Filesystem;
-
 class Mailhog_Command extends EE_Command {
 
 	/**
@@ -32,7 +33,7 @@ class Mailhog_Command extends EE_Command {
 	public function up( $args, $assoc_args ) {
 
 		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
-		$args            = EE\SiteUtils\auto_site_name( $args, 'mailhog', __FUNCTION__ );
+		$args            = auto_site_name( $args, 'mailhog', __FUNCTION__ );
 		$this->site_data = Site::find( EE\Utils\remove_trailing_slash( $args[0] ) );
 		if ( ! $this->site_data || ! $this->site_data->site_enabled ) {
 			EE::error( sprintf( 'Site %s does not exist / is not enabled.', $args[0] ) );
@@ -57,7 +58,7 @@ class Mailhog_Command extends EE_Command {
 	public function down( $args, $assoc_args ) {
 
 		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
-		$args            = EE\SiteUtils\auto_site_name( $args, 'mailhog', __FUNCTION__ );
+		$args            = auto_site_name( $args, 'mailhog', __FUNCTION__ );
 		$this->site_data = Site::find( EE\Utils\remove_trailing_slash( $args[0] ) );
 		if ( ! $this->site_data || ! $this->site_data->site_enabled ) {
 			EE::error( sprintf( 'Site %s does not exist / is not enabled.', $args[0] ) );
@@ -82,7 +83,7 @@ class Mailhog_Command extends EE_Command {
 	public function status( $args, $assoc_args ) {
 
 		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
-		$args            = EE\SiteUtils\auto_site_name( $args, 'mailhog', __FUNCTION__ );
+		$args            = auto_site_name( $args, 'mailhog', __FUNCTION__ );
 		$this->site_data = Site::find( EE\Utils\remove_trailing_slash( $args[0] ) );
 		if ( ! $this->site_data || ! $this->site_data->site_enabled ) {
 			EE::error( sprintf( 'Site %s does not exist / is not enabled.', $args[0] ) );
@@ -103,11 +104,12 @@ class Mailhog_Command extends EE_Command {
 		chdir( $this->site_data->site_fs_path );
 		$launch   = EE::launch( 'docker-compose config --services' );
 		$services = explode( PHP_EOL, trim( $launch->stdout ) );
-		if ( ! in_array( 'mailhog', $services, true ) ) {
-			EE::debug( 'Site type: ' . $this->site_data->site_type );
-			EE::debug( 'Site command: ' . $this->site_data->app_sub_type );
-			EE::error( sprintf( '%s site does not have support to enable/disable mailhog.' ) );
+		if ( in_array( 'mailhog', $services, true ) ) {
+			return;
 		}
+		EE::debug( 'Site type: ' . $this->site_data->site_type );
+		EE::debug( 'Site command: ' . $this->site_data->app_sub_type );
+		EE::error( sprintf( '%s site does not have support to enable/disable mailhog.', $this->site_data->site_url ) );
 	}
 
 	/**
