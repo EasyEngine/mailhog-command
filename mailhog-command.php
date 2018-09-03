@@ -10,3 +10,12 @@ if ( file_exists( $autoload ) ) {
 }
 
 EE::add_command( 'mailhog', 'Mailhog_Command' );
+
+EE::add_hook('before_invoke:mailhog up', function ( $args, $assoc_args ) {
+
+	if ( ! is_array( EE::get_runner()->find_command_to_run( [ 'auth' ] ) ) ) {
+		EE::error( 'Auth command needs to be registered for mailhog' );
+	}
+
+	EE::run_command( [ 'auth', 'init' ] );
+});
