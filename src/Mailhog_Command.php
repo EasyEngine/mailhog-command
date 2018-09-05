@@ -2,7 +2,6 @@
 
 
 use EE\Model\Site;
-use \Symfony\Component\Filesystem\Filesystem;
 use function EE\Site\Utils\auto_site_name;
 
 /**
@@ -31,6 +30,8 @@ class Mailhog_Command extends EE_Command {
 	 * : Name of website to enable mailhog on.
 	 */
 	public function up( $args, $assoc_args ) {
+
+		\EE\Auth\Utils\init_global_admin_tools_auth();
 
 		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
 		$args            = auto_site_name( $args, 'mailhog', __FUNCTION__ );
