@@ -28,6 +28,12 @@ class Mailhog_Command extends EE_Command {
 	 *
 	 * [<site-name>]
 	 * : Name of website to enable mailhog on.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Enable mailhog for site
+	 *     $ ee mailhog up example.com
+	 *
 	 */
 	public function up( $args, $assoc_args ) {
 
@@ -56,6 +62,12 @@ class Mailhog_Command extends EE_Command {
 	 *
 	 * [<site-name>]
 	 * : Name of website to disable mailhog on.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Disable mailhog for site
+	 *     $ ee mailhog down example.com
+	 *
 	 */
 	public function down( $args, $assoc_args ) {
 
@@ -82,6 +94,12 @@ class Mailhog_Command extends EE_Command {
 	 *
 	 * [<site-name>]
 	 * : Name of website to know mailhog status for.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Check mailhog status on site
+	 *     $ ee mailhog status example.com
+	 *
 	 */
 	public function status( $args, $assoc_args ) {
 
