@@ -5,12 +5,7 @@ use EE\Model\Site;
 use function EE\Site\Utils\auto_site_name;
 
 /**
- * Enables/Disables admin-tools on a site.
- *
- * ## EXAMPLES
- *
- *     # Enable admin tools on site
- *     $ ee admin-tools up example.com
+ * Manages mailhog on a site.
  *
  * @package ee-cli
  */
@@ -32,10 +27,10 @@ class Mailhog_Command extends EE_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Enable mailhog for site
-	 *     $ ee mailhog up example.com
+	 *     $ ee mailhog enable example.com
 	 *
 	 */
-	public function up( $args, $assoc_args ) {
+	public function enable( $args, $assoc_args ) {
 
 		\EE\Auth\Utils\init_global_admin_tools_auth();
 
@@ -66,10 +61,10 @@ class Mailhog_Command extends EE_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Disable mailhog for site
-	 *     $ ee mailhog down example.com
+	 *     $ ee mailhog disable example.com
 	 *
 	 */
-	public function down( $args, $assoc_args ) {
+	public function disable( $args, $assoc_args ) {
 
 		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
 		$args            = auto_site_name( $args, 'mailhog', __FUNCTION__ );
