@@ -19,7 +19,10 @@
         },
         "bundled": true,
         "commands": [
-            "mailhog"
+            "mailhog",
+            "mailhog up",
+            "mailhog down",
+            "mailhog status"
         ]
     }
 }
