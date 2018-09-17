@@ -1,7 +1,7 @@
 easyengine/mailhog-command
 ==========================
 
-Commanad to enable disable mailhog for sites.
+Command to manage mailhog
 
 
 
@@ -13,25 +13,22 @@ This package implements the following commands:
 
 ### ee mailhog
 
-Enables/Disables admin-tools on a site.
+Manages mailhog on a site.
 
 ~~~
 ee mailhog
 ~~~
 
-**EXAMPLES**
-
-    # Enable admin tools on site
-    $ ee admin-tools up example.com
 
 
 
-### ee mailhog up
+
+### ee mailhog enable
 
 Enables mailhog on given site.
 
 ~~~
-ee mailhog up [<site-name>]
+ee mailhog enable [<site-name>]
 ~~~
 
 **OPTIONS**
@@ -39,20 +36,30 @@ ee mailhog up [<site-name>]
 	[<site-name>]
 		Name of website to enable mailhog on.
 
+**EXAMPLES**
+
+    # Enable mailhog for site
+    $ ee mailhog enable example.com
 
 
-### ee mailhog down
+
+### ee mailhog disable
 
 Disables mailhog on given site.
 
 ~~~
-ee mailhog down [<site-name>]
+ee mailhog disable [<site-name>]
 ~~~
 
 **OPTIONS**
 
 	[<site-name>]
 		Name of website to disable mailhog on.
+
+**EXAMPLES**
+
+    # Disable mailhog for site
+    $ ee mailhog disable example.com
 
 
 
@@ -68,6 +75,11 @@ ee mailhog status [<site-name>]
 
 	[<site-name>]
 		Name of website to know mailhog status for.
+
+**EXAMPLES**
+
+    # Check mailhog status on site
+    $ ee mailhog status example.com
 
 ## Contributing
 
