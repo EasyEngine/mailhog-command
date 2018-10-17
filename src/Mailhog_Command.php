@@ -125,14 +125,11 @@ class Mailhog_Command extends EE_Command {
 	 */
 	private function check_mailhog_available() {
 
-		chdir( $this->site_data->site_fs_path );
-		$launch   = EE::launch( 'docker-compose config --services' );
-		$services = explode( PHP_EOL, trim( $launch->stdout ) );
-		if ( in_array( 'mailhog', $services, true ) ) {
-			return;
-		}
 		EE::debug( 'Site type: ' . $this->site_data->site_type );
 		EE::debug( 'Site command: ' . $this->site_data->app_sub_type );
+		if ( EE::docker()::service_exists( 'mailhog', $this->site_data->site_fs_path ) ) {
+			return;
+		}
 		EE::error( sprintf( '%s site does not have support to enable/disable mailhog.', $this->site_data->site_url ) );
 	}
 
