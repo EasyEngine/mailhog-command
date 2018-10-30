@@ -5,12 +5,7 @@ use EE\Model\Site;
 use function EE\Site\Utils\auto_site_name;
 
 /**
- * Enables/Disables admin-tools on a site.
- *
- * ## EXAMPLES
- *
- *     # Enable admin tools on site
- *     $ ee admin-tools up example.com
+ * Manages mailhog on a site.
  *
  * @package ee-cli
  */
@@ -28,8 +23,14 @@ class Mailhog_Command extends EE_Command {
 	 *
 	 * [<site-name>]
 	 * : Name of website to enable mailhog on.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Enable mailhog for site
+	 *     $ ee mailhog enable example.com
+	 *
 	 */
-	public function up( $args, $assoc_args ) {
+	public function enable( $args, $assoc_args ) {
 
 		\EE\Auth\Utils\init_global_admin_tools_auth();
 
@@ -46,6 +47,10 @@ class Mailhog_Command extends EE_Command {
 		EE::docker()::docker_compose_up( $this->site_data->site_fs_path, [ 'mailhog' ] );
 		EE::exec( "docker-compose exec postfix postconf -e 'relayhost = mailhog:1025'" );
 		EE::exec( 'docker-compose restart postfix' );
+
+		$this->site_data->mailhog_enabled = 1;
+		$this->site_data->save();
+
 		EE::success( sprintf( 'Mailhog enabled for %s site', $this->site_data->site_url ) );
 	}
 
@@ -56,8 +61,14 @@ class Mailhog_Command extends EE_Command {
 	 *
 	 * [<site-name>]
 	 * : Name of website to disable mailhog on.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Disable mailhog for site
+	 *     $ ee mailhog disable example.com
+	 *
 	 */
-	public function down( $args, $assoc_args ) {
+	public function disable( $args, $assoc_args ) {
 
 		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
 		$args            = auto_site_name( $args, 'mailhog', __FUNCTION__ );
@@ -72,6 +83,10 @@ class Mailhog_Command extends EE_Command {
 		EE::exec( 'docker-compose stop mailhog' );
 		EE::exec( 'docker-compose exec postfix postconf -e \'relayhost =\'' );
 		EE::exec( 'docker-compose restart postfix' );
+
+		$this->site_data->mailhog_enabled = 0;
+		$this->site_data->save();
+
 		EE::success( sprintf( 'Mailhog disabled for %s site', $this->site_data->site_url ) );
 	}
 
@@ -82,6 +97,12 @@ class Mailhog_Command extends EE_Command {
 	 *
 	 * [<site-name>]
 	 * : Name of website to know mailhog status for.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Check mailhog status on site
+	 *     $ ee mailhog status example.com
+	 *
 	 */
 	public function status( $args, $assoc_args ) {
 
@@ -104,14 +125,11 @@ class Mailhog_Command extends EE_Command {
 	 */
 	private function check_mailhog_available() {
 
-		chdir( $this->site_data->site_fs_path );
-		$launch   = EE::launch( 'docker-compose config --services' );
-		$services = explode( PHP_EOL, trim( $launch->stdout ) );
-		if ( in_array( 'mailhog', $services, true ) ) {
-			return;
-		}
 		EE::debug( 'Site type: ' . $this->site_data->site_type );
 		EE::debug( 'Site command: ' . $this->site_data->app_sub_type );
+		if ( EE::docker()::service_exists( 'mailhog', $this->site_data->site_fs_path ) ) {
+			return;
+		}
 		EE::error( sprintf( '%s site does not have support to enable/disable mailhog.', $this->site_data->site_url ) );
 	}
 

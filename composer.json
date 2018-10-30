@@ -1,6 +1,6 @@
 {
     "name": "easyengine/mailhog-command",
-    "description": "Commanad to enable disable mailhog for sites.",
+    "description": "Command to manage mailhog",
     "type": "ee-cli-package",
     "homepage": "https://github.com/easyengine/mailhog-command",
     "license": "MIT",
@@ -19,7 +19,10 @@
         },
         "bundled": true,
         "commands": [
-            "mailhog"
+            "mailhog",
+            "mailhog enable",
+            "mailhog disable",
+            "mailhog status"
         ]
     }
 }
