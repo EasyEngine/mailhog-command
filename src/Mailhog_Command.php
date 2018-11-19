@@ -24,6 +24,9 @@ class Mailhog_Command extends EE_Command {
 	 * [<site-name>]
 	 * : Name of website to enable mailhog on.
 	 *
+	 * [--force]
+	 * : Force enabling of mailhog for a site.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     # Enable mailhog for site
@@ -36,12 +39,13 @@ class Mailhog_Command extends EE_Command {
 
 		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
 		$args            = auto_site_name( $args, 'mailhog', __FUNCTION__ );
+		$force           = EE\Utils\get_flag_value( $assoc_args, 'force' );
 		$this->site_data = Site::find( EE\Utils\remove_trailing_slash( $args[0] ) );
 		if ( ! $this->site_data || ! $this->site_data->site_enabled ) {
 			EE::error( sprintf( 'Site %s does not exist / is not enabled.', $args[0] ) );
 		}
 
-		if ( $this->mailhog_enabled() ) {
+		if ( ! $force && $this->mailhog_enabled() ) {
 			EE::error( 'Mailhog is already up.' );
 		}
 		EE::docker()::docker_compose_up( $this->site_data->site_fs_path, [ 'mailhog' ] );
