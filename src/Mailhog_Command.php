@@ -48,7 +48,7 @@ class Mailhog_Command extends EE_Command {
 		if ( ! $force && $this->mailhog_enabled() ) {
 			EE::error( 'Mailhog is already up.' );
 		}
-		EE::docker()::docker_compose_up( $this->site_data->site_fs_path, [ 'mailhog' ] );
+		EE_DOCKER::docker_compose_up( $this->site_data->site_fs_path, [ 'mailhog' ] );
 		EE::exec( "docker-compose exec postfix postconf -e 'relayhost = mailhog:1025'" );
 		EE::exec( 'docker-compose restart postfix' );
 
@@ -131,7 +131,7 @@ class Mailhog_Command extends EE_Command {
 
 		EE::debug( 'Site type: ' . $this->site_data->site_type );
 		EE::debug( 'Site command: ' . $this->site_data->app_sub_type );
-		if ( EE::docker()::service_exists( 'mailhog', $this->site_data->site_fs_path ) ) {
+		if ( EE_DOCKER::service_exists( 'mailhog', $this->site_data->site_fs_path ) ) {
 			return;
 		}
 		EE::error( sprintf( '%s site does not have support to enable/disable mailhog.', $this->site_data->site_url ) );
@@ -151,7 +151,7 @@ class Mailhog_Command extends EE_Command {
 			return false;
 		}
 
-		return 'running' === EE::docker()::container_status( $id );
+		return 'running' === EE_DOCKER::container_status( $id );
 	}
 
 }
