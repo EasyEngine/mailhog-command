@@ -28,13 +28,16 @@ ee mailhog
 Enables mailhog on given site.
 
 ~~~
-ee mailhog enable [<site-name>]
+ee mailhog enable [<site-name>] [--force]
 ~~~
 
 **OPTIONS**
 
 	[<site-name>]
 		Name of website to enable mailhog on.
+
+	[--force]
+		Force enabling of mailhog for a site.
 
 **EXAMPLES**
 
@@ -86,7 +89,6 @@ ee mailhog status [<site-name>]
 We appreciate you taking the initiative to contribute to this project.
 
 Contributing isn’t limited to just code. We encourage you to contribute in the way that best fits your abilities, by writing tutorials, giving a demo at your local meetup, helping other users with their support questions, or revising our documentation.
-
 
 ### Reporting a bug
 
