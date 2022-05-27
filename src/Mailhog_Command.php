@@ -49,8 +49,8 @@ class Mailhog_Command extends EE_Command {
 			EE::error( 'Mailhog is already up.' );
 		}
 		EE_DOCKER::docker_compose_up( $this->site_data->site_fs_path, [ 'mailhog' ] );
-		EE::exec( "docker-compose exec postfix postconf -e 'relayhost = mailhog:1025'" );
-		EE::exec( 'docker-compose restart postfix' );
+		\EE_DOCKER::docker_compose_exec( "postconf -e 'relayhost = mailhog:1025'", 'postfix' );
+		EE::exec( \EE_DOCKER::docker_compose_with_custom() . ' restart postfix' );
 
 		$this->site_data->mailhog_enabled = 1;
 		$this->site_data->save();
@@ -84,9 +84,9 @@ class Mailhog_Command extends EE_Command {
 		if ( ! $this->mailhog_enabled() ) {
 			EE::error( 'Mailhog is already down.' );
 		}
-		EE::exec( 'docker-compose stop mailhog' );
-		EE::exec( 'docker-compose exec postfix postconf -e \'relayhost =\'' );
-		EE::exec( 'docker-compose restart postfix' );
+		EE::exec( \EE_DOCKER::docker_compose_with_custom() . ' stop mailhog' );
+		\EE_DOCKER::docker_compose_exec( 'postconf -e \'relayhost =\'', 'postfix' );;
+		EE::exec( \EE_DOCKER::docker_compose_with_custom() . ' restart postfix' );
 
 		$this->site_data->mailhog_enabled = 0;
 		$this->site_data->save();
@@ -145,7 +145,7 @@ class Mailhog_Command extends EE_Command {
 	private function mailhog_enabled() {
 
 		$this->check_mailhog_available();
-		$launch = EE::launch( 'docker-compose ps -q mailhog' );
+		$launch = EE::launch( \EE_DOCKER::docker_compose_with_custom() . ' ps -q mailhog' );
 		$id     = trim( $launch->stdout );
 		if ( empty( $id ) ) {
 			return false;
