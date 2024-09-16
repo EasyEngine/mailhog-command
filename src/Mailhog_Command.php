@@ -2,7 +2,9 @@
 
 
 use EE\Model\Site;
-use function EE\Site\Utils\auto_site_name;
+use EE\Site\Utils as Site_Utils;
+use EE\Auth\Utils as Auth_Utils;
+use EE\Utils as EE_Utils;
 
 /**
  * Manages mailhog on a site.
@@ -35,12 +37,12 @@ class Mailhog_Command extends EE_Command {
 	 */
 	public function enable( $args, $assoc_args ) {
 
-		\EE\Auth\Utils\init_global_admin_tools_auth();
+		Auth_Utils\init_global_admin_tools_auth();
 
-		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
-		$args            = auto_site_name( $args, 'mailhog', __FUNCTION__ );
-		$force           = EE\Utils\get_flag_value( $assoc_args, 'force' );
-		$this->site_data = Site::find( EE\Utils\remove_trailing_slash( $args[0] ) );
+		EE_Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
+		$args            = Site_Utils\auto_site_name( $args, 'mailhog', __FUNCTION__ );
+		$force           = EE_Utils\get_flag_value( $assoc_args, 'force' );
+		$this->site_data = Site::find( EE_Utils\remove_trailing_slash( $args[0] ) );
 		if ( ! $this->site_data || ! $this->site_data->site_enabled ) {
 			EE::error( sprintf( 'Site %s does not exist / is not enabled.', $args[0] ) );
 		}
@@ -74,9 +76,9 @@ class Mailhog_Command extends EE_Command {
 	 */
 	public function disable( $args, $assoc_args ) {
 
-		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
-		$args            = auto_site_name( $args, 'mailhog', __FUNCTION__ );
-		$this->site_data = Site::find( EE\Utils\remove_trailing_slash( $args[0] ) );
+		EE_Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
+		$args            = Site_Utils\auto_site_name( $args, 'mailhog', __FUNCTION__ );
+		$this->site_data = Site::find( EE_Utils\remove_trailing_slash( $args[0] ) );
 		if ( ! $this->site_data || ! $this->site_data->site_enabled ) {
 			EE::error( sprintf( 'Site %s does not exist / is not enabled.', $args[0] ) );
 		}
@@ -110,9 +112,9 @@ class Mailhog_Command extends EE_Command {
 	 */
 	public function status( $args, $assoc_args ) {
 
-		EE\Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
-		$args            = auto_site_name( $args, 'mailhog', __FUNCTION__ );
-		$this->site_data = Site::find( EE\Utils\remove_trailing_slash( $args[0] ) );
+		EE_Utils\delem_log( 'mailhog' . __FUNCTION__ . ' start' );
+		$args            = Site_Utils\auto_site_name( $args, 'mailhog', __FUNCTION__ );
+		$this->site_data = Site::find( EE_Utils\remove_trailing_slash( $args[0] ) );
 		if ( ! $this->site_data || ! $this->site_data->site_enabled ) {
 			EE::error( sprintf( 'Site %s does not exist / is not enabled.', $args[0] ) );
 		}
